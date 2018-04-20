@@ -213,6 +213,26 @@ invalidNumberType
 	self error: self class invalidNumberTypeErrorDescription! !
 
 
+!Numero methodsFor: 'testing' stamp: 'JL 4/19/2018 21:38:38'!
+MultiplicaConEntero: aNumber
+
+	self subclassResponsibility ! !
+
+!Numero methodsFor: 'testing' stamp: 'JL 4/19/2018 21:38:34'!
+MultiplicaConFraccion: aNumber
+
+	self subclassResponsibility ! !
+
+!Numero methodsFor: 'testing' stamp: 'JL 4/19/2018 21:38:58'!
+dividiAUnEntero: aNumber
+
+	self subclassResponsibility ! !
+
+!Numero methodsFor: 'testing' stamp: 'JL 4/19/2018 21:38:53'!
+dividiAUnaFraccion: aNumber
+
+	self subclassResponsibility ! !
+
 !Numero methodsFor: 'testing' stamp: 'HernanWilkinson 5/7/2016 22:49'!
 isOne
 
@@ -220,6 +240,16 @@ isOne
 
 !Numero methodsFor: 'testing' stamp: 'HernanWilkinson 5/7/2016 22:49'!
 isZero
+
+	self subclassResponsibility ! !
+
+!Numero methodsFor: 'testing' stamp: 'JL 4/19/2018 21:38:24'!
+sumaConEntero: aNumber
+
+	self subclassResponsibility ! !
+
+!Numero methodsFor: 'testing' stamp: 'JL 4/19/2018 21:38:29'!
+sumaConFraccion: aNumber
 
 	self subclassResponsibility ! !
 
