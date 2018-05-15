@@ -1129,18 +1129,18 @@ initializeOf: aPortfolio withNamingAccounts: aDictionary
 	namingAccounts := aDictionary.
 	! !
 
-!PortfolioTree methodsFor: 'as yet unclassified' stamp: 'NL 5/14/2018 21:48:32'!
+!PortfolioTree methodsFor: 'as yet unclassified' stamp: 'JL 5/15/2018 20:19:09'!
 reportAPortfolio: aPortfolio
 
-	| collection collectionRec |
+	| collection collectionRecursive |
 	
 	collection := OrderedCollection new.
 	collection add: (namingAccounts at: aPortfolio).
 	
-	collectionRec := OrderedCollection new.
-	aPortfolio accounts do: [ :anAccount | collectionRec addAll: (anAccount report: self) ].
+	collectionRecursive := OrderedCollection new.
+	aPortfolio accountsDo: [ :anAccount | collectionRecursive addAll: (anAccount report: self) ].
 	
-	collectionRec inject: collection into: [:aCollection :aLine |  aCollection add: (' ' , aLine). aCollection].
+	collectionRecursive inject: collection into: [:aCollection :aLine |  aCollection add: (' ' , aLine). aCollection].
 	
 	^ collection! !
 
@@ -1230,6 +1230,11 @@ registers: aTransaction
 accounts
 
 	^accounts! !
+
+!Portfolio methodsFor: 'transactions' stamp: 'JL 5/15/2018 20:21:08'!
+accountsDo: aBlock
+
+	^accounts do: [:anAccount | aBlock value: anAccount]! !
 
 !Portfolio methodsFor: 'transactions' stamp: 'HAW 8/13/2017 17:47:44'!
 balance
