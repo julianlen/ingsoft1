@@ -1089,6 +1089,18 @@ initializeOf: aPortfolio withNamingAccounts: aDictionary
 	lines := OrderedCollection new.
 	! !
 
+!PortfolioTree methodsFor: 'as yet unclassified' stamp: 'JL 5/14/2018 21:15:52'!
+reportAPortfolio: aPortfolio
+
+
+	! !
+
+!PortfolioTree methodsFor: 'as yet unclassified' stamp: 'JL 5/14/2018 21:14:29'!
+reportAReceptiveAccount: aReceptiveAccount
+
+
+	^namingAccounts at: aReceptiveAccount! !
+
 !PortfolioTree methodsFor: 'as yet unclassified' stamp: 'JL 5/14/2018 21:05:00'!
 value! !
 
@@ -1168,6 +1180,11 @@ balance
 
 	^ accounts sum: [ :account | account balance ]
 ! !
+
+!Portfolio methodsFor: 'transactions' stamp: 'JL 5/14/2018 21:13:06'!
+report: aReporter
+
+	aReporter reportAPortfolio: self! !
 
 !Portfolio methodsFor: 'transactions' stamp: 'HAW 9/25/2017 19:40:20'!
 transactions 
@@ -1278,6 +1295,11 @@ register: aTransaction
 
 	transactions add: aTransaction 
 ! !
+
+!ReceptiveAccount methodsFor: 'transactions' stamp: 'JL 5/14/2018 21:13:38'!
+report: aReporter
+
+	aReporter reportAReceptiveAccount: self! !
 
 !ReceptiveAccount methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:37'!
 transactions 
