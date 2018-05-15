@@ -715,6 +715,13 @@ of: anAccount
 	
 	! !
 
+!AccountSummary class methodsFor: 'as yet unclassified' stamp: 'JL 5/10/2018 21:13:29'!
+summarizingLinesOf: anAccount
+	
+	
+	^ (anAccount transactions) inject: OrderedCollection new into: [:aSummary :aTransaction | aSummary add: (aTransaction report). aSummary]
+	! !
+
 
 !classDefinition: #AccountTransaction category: #'PortfolioTreePrinter-Ejercicio'!
 Object subclass: #AccountTransaction
@@ -723,9 +730,13 @@ Object subclass: #AccountTransaction
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
 
-
 !AccountTransaction methodsFor: 'evaluating' stamp: 'JL 5/10/2018 18:58:28'!
 modifyBalance: aBalance
+
+	self subclassResponsibility ! !
+
+!AccountTransaction methodsFor: 'evaluating' stamp: 'JL 5/10/2018 19:57:03'!
+report
 
 	self subclassResponsibility ! !
 
@@ -830,6 +841,11 @@ modifyBalance: aBalance
 
 	^aBalance + self value! !
 
+!Deposit methodsFor: 'value' stamp: 'JL 5/10/2018 21:07:11'!
+report
+
+	^ 'Deposito por ', (self value asString)! !
+
 !Deposit methodsFor: 'value' stamp: 'JL 5/14/2018 18:56:24'!
 report: aReporter
 
@@ -880,6 +896,11 @@ fromTransfer: aTransfer
 modifyBalance: aBalance
 
 	^aBalance + self value! !
+
+!TransferDeposit methodsFor: 'as yet unclassified' stamp: 'JL 5/10/2018 21:07:40'!
+report
+
+	^ 'Transferencia por ', transfer value asString! !
 
 !TransferDeposit methodsFor: 'as yet unclassified' stamp: 'JL 5/14/2018 18:58:05'!
 report: aReporter
@@ -932,6 +953,11 @@ modifyBalance: aBalance
 
 	^aBalance - self value! !
 
+!TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'JL 5/10/2018 21:07:54'!
+report
+
+	^ 'Transferencia por ', (-1 * transfer value) asString! !
+
 !TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'JL 5/14/2018 18:58:00'!
 report: aReporter
 
@@ -983,6 +1009,11 @@ initializeFor: aValue
 modifyBalance: aBalance
 
 	^aBalance - self value! !
+
+!Withdraw methodsFor: 'value' stamp: 'JL 5/10/2018 21:08:06'!
+report
+
+	^ 'Extraccion por ', self value asString! !
 
 !Withdraw methodsFor: 'value' stamp: 'JL 5/14/2018 18:56:57'!
 report: aReporter
@@ -1066,6 +1097,16 @@ value
 AccountTransferNet class
 	instanceVariableNames: ''!
 
+!AccountTransferNet class methodsFor: 'as yet unclassified' stamp: 'JL 5/10/2018 21:26:51'!
+accountTransferNetOf: anAccount
+
+	|transferDepositNet  transferWithdrawNet depositBalance withdrawBalance|
+	transferDepositNet := anAccount transactions select: [:aTransaction | (aTransaction isKindOf: TransferDeposit)].
+	transferWithdrawNet := anAccount transactions select: [:aTransaction | (aTransaction isKindOf: TransferWithdraw)].
+	depositBalance := transferDepositNet sum: [:transferDeposit | transferDeposit value].
+	withdrawBalance := transferWithdrawNet sum: [:transferWithdraw | transferWithdraw value]..
+	^ depositBalance -  withdrawBalance! !
+
 !AccountTransferNet class methodsFor: 'as yet unclassified' stamp: 'JL 5/14/2018 19:02:19'!
 of: anAccount
 
@@ -1081,28 +1122,45 @@ Object subclass: #PortfolioTree
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
 
-!PortfolioTree methodsFor: 'as yet unclassified' stamp: 'JL 5/14/2018 20:57:32'!
+!PortfolioTree methodsFor: 'as yet unclassified' stamp: 'NL 5/14/2018 21:28:14'!
 initializeOf: aPortfolio withNamingAccounts: aDictionary
 
 	portfolio := aPortfolio.
 	namingAccounts := aDictionary.
-	lines := OrderedCollection new.
 	! !
 
-!PortfolioTree methodsFor: 'as yet unclassified' stamp: 'JL 5/14/2018 21:15:52'!
+!PortfolioTree methodsFor: 'as yet unclassified' stamp: 'NL 5/14/2018 21:48:32'!
 reportAPortfolio: aPortfolio
 
+	| collection collectionRec |
+	
+	collection := OrderedCollection new.
+	collection add: (namingAccounts at: aPortfolio).
+	
+	collectionRec := OrderedCollection new.
+	aPortfolio accounts do: [ :anAccount | collectionRec addAll: (anAccount report: self) ].
+	
+	collectionRec inject: collection into: [:aCollection :aLine |  aCollection add: (' ' , aLine). aCollection].
+	
+	^ collection! !
 
-	! !
-
-!PortfolioTree methodsFor: 'as yet unclassified' stamp: 'JL 5/14/2018 21:14:29'!
+!PortfolioTree methodsFor: 'as yet unclassified' stamp: 'NL 5/14/2018 21:40:24'!
 reportAReceptiveAccount: aReceptiveAccount
 
+	| collection |
+	
+	collection := OrderedCollection new.
+	
+	collection add: (namingAccounts at: aReceptiveAccount).
+	
+	^ collection
+	! !
 
-	^namingAccounts at: aReceptiveAccount! !
+!PortfolioTree methodsFor: 'as yet unclassified' stamp: 'NL 5/14/2018 21:41:02'!
+value
 
-!PortfolioTree methodsFor: 'as yet unclassified' stamp: 'JL 5/14/2018 21:05:00'!
-value! !
+	lines := portfolio report: self.
+	^ lines! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1144,7 +1202,6 @@ transactions
 
 	self subclassResponsibility ! !
 
-
 
 !classDefinition: #Portfolio category: #'PortfolioTreePrinter-Ejercicio'!
 SummarizingAccount subclass: #Portfolio
@@ -1152,7 +1209,6 @@ SummarizingAccount subclass: #Portfolio
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
-
 
 !Portfolio methodsFor: 'testing' stamp: 'HAW 5/8/2018 16:46:26'!
 anyManagedAccountManages: anAccount 
@@ -1181,10 +1237,10 @@ balance
 	^ accounts sum: [ :account | account balance ]
 ! !
 
-!Portfolio methodsFor: 'transactions' stamp: 'JL 5/14/2018 21:13:06'!
+!Portfolio methodsFor: 'transactions' stamp: 'NL 5/14/2018 21:43:19'!
 report: aReporter
 
-	aReporter reportAPortfolio: self! !
+	^ aReporter reportAPortfolio: self! !
 
 !Portfolio methodsFor: 'transactions' stamp: 'HAW 9/25/2017 19:40:20'!
 transactions 
@@ -1296,10 +1352,10 @@ register: aTransaction
 	transactions add: aTransaction 
 ! !
 
-!ReceptiveAccount methodsFor: 'transactions' stamp: 'JL 5/14/2018 21:13:38'!
+!ReceptiveAccount methodsFor: 'transactions' stamp: 'NL 5/14/2018 21:43:35'!
 report: aReporter
 
-	aReporter reportAReceptiveAccount: self! !
+	^ aReporter reportAReceptiveAccount: self! !
 
 !ReceptiveAccount methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:37'!
 transactions 
@@ -1310,7 +1366,6 @@ transactions
 transactionsDo: aBlock 
 
 	^(self transactions) do: [:aTransaction | aBlock value: aTransaction].! !
-
 
 
 !ReceptiveAccount methodsFor: 'testing' stamp: 'HernanWilkinson 7/13/2011 18:37'!
