@@ -533,10 +533,10 @@ portofolioTreeOf: aPortfolio namingAccountWith: aDictionary
 	
 	^(PortfolioTree of: aPortfolio withNamingAccounts: aDictionary) value! !
 
-!PortfolioTest methodsFor: 'test support' stamp: 'HernanWilkinson 9/6/2016 19:43'!
+!PortfolioTest methodsFor: 'test support' stamp: 'JL 5/16/2018 14:31:35'!
 reversePortofolioTreeOf: aPortfolio namingAccountWith: aDictionary 
 	
-	self shouldBeImplemented ! !
+	^(self portofolioTreeOf: aPortfolio namingAccountWith: aDictionary) reverse.! !
 
 
 !classDefinition: #AccountInvestmentEarnings category: #'PortfolioTreePrinter-Ejercicio'!
