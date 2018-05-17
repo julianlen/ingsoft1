@@ -553,16 +553,10 @@ initializeOf: anAccount
 		value := 0.
 		account := anAccount! !
 
-!AccountInvestmentEarnings methodsFor: 'as yet unclassified' stamp: 'JL 5/14/2018 20:11:43'!
+!AccountInvestmentEarnings methodsFor: 'as yet unclassified' stamp: 'JL 5/17/2018 14:31:38'!
 reportACertificateOfDeposit: aCertificateOfDeposit
 
-	|aCertOfDepositValue aCertOfDepositRate aCertOfDepositDuration|
-	
-	aCertOfDepositValue := aCertificateOfDeposit value.
-	aCertOfDepositRate := aCertificateOfDeposit tna.
-	aCertOfDepositDuration := aCertificateOfDeposit numberOfDays.
-
-	value := value + (aCertOfDepositValue * ((aCertOfDepositRate)/360)*aCertOfDepositDuration)! !
+	value := value + aCertificateOfDeposit earnings! !
 
 !AccountInvestmentEarnings methodsFor: 'as yet unclassified' stamp: 'JL 5/14/2018 20:05:32'!
 reportADeposit: aDeposit! !
@@ -773,6 +767,19 @@ AccountTransaction subclass: #CertificateOfDeposit
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
+
+!CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'JL 5/17/2018 14:31:07'!
+earnings
+
+
+	|aCertOfDepositValue aCertOfDepositRate aCertOfDepositDuration|
+	
+	aCertOfDepositValue := self value.
+	aCertOfDepositRate := self tna.
+	aCertOfDepositDuration := self numberOfDays.
+
+
+	^aCertOfDepositValue * ((aCertOfDepositRate)/360)*aCertOfDepositDuration! !
 
 !CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'JL 5/14/2018 19:38:15'!
 modifyBalance: aBalance
