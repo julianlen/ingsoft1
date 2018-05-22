@@ -609,20 +609,16 @@ initializeFor: aReceptiveAccount
 	account := aReceptiveAccount ! !
 
 
-!AccountSummaryWithAllInvestmentInformation methodsFor: 'evaluating' stamp: 'JL 5/21/2018 21:25:20'!
+!AccountSummaryWithAllInvestmentInformation methodsFor: 'evaluating' stamp: 'JL 5/22/2018 18:24:47'!
 lines
-	| lines semaphore otherSemaphore investmentEarningsValue |
-	semaphore _ Semaphore new.
-	otherSemaphore _ Semaphore new.
-	[
-	lines _ (AccountSummaryWithInvestmentEarnings for: account) lines.
-	semaphore signal ] fork.
-	[
-	investmentEarningsValue _ (InvestmentNetVisitor for: account) value.
-	otherSemaphore signal ] fork.
-	semaphore wait.
-	otherSemaphore wait.
-	lines add: 'Inversiones por ' , investmentEarningsValue printString.
+	|paralelizer lines |
+	
+	paralelizer := Paralelizer 
+			paralelizeExecutionOf: [(AccountSummaryWithInvestmentEarnings for: account) lines] 
+			andOf: [(InvestmentNetVisitor for: account) value].
+	lines := paralelizer lines.
+	
+	lines add: 'Inversiones por ' , (paralelizer value) printString.
 	^ lines.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
@@ -650,20 +646,16 @@ initializeFor: aReceptiveAccount
 	account := aReceptiveAccount ! !
 
 
-!AccountSummaryWithInvestmentEarnings methodsFor: 'evaluating' stamp: 'JL 5/21/2018 21:25:11'!
+!AccountSummaryWithInvestmentEarnings methodsFor: 'evaluating' stamp: 'JL 5/22/2018 18:25:24'!
 lines
-	| lines semaphore otherSemaphore investmentEarningValue |
-	semaphore _ Semaphore new.
-	otherSemaphore _ Semaphore new.
-	[
-	lines _ (AccountSummary for: account) lines.
-	semaphore signal ] fork.
-	[
-	investmentEarningValue _ (InvestmentEarningVisitor for: account) value.
-	otherSemaphore signal ] fork.
-	semaphore wait.
-	otherSemaphore wait.
-	lines add: 'Ganancias por ' , investmentEarningValue printString.
+	| paralelizer lines |
+
+	paralelizer := Paralelizer
+		 	paralelizeExecutionOf: [(AccountSummary for: account) lines] 
+			andOf: [(InvestmentEarningVisitor for: account) value].
+	lines := paralelizer lines.
+	
+	lines add: 'Ganancias por ' , (paralelizer value) printString.
 	^ lines.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
@@ -1517,6 +1509,53 @@ InvestmentNetVisitor class
 for: aReceptiveAccount 
 	
 	^ self new initializeFor: aReceptiveAccount ! !
+
+
+!classDefinition: #Paralelizer category: #'PortfolioTimeConsuming-Ejercicio'!
+Object subclass: #Paralelizer
+	instanceVariableNames: 'lines value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'PortfolioTimeConsuming-Ejercicio'!
+
+!Paralelizer methodsFor: 'initialization' stamp: 'JL 5/22/2018 18:16:48'!
+paralelizeExecutionOf: aBlock andOf: anotherBlock
+
+
+	| otherSemaphore semaphore |
+	semaphore _ Semaphore new.
+	otherSemaphore _ Semaphore new.
+	
+	[lines _ aBlock value. semaphore signal] fork.
+	
+	[value _ anotherBlock value. otherSemaphore signal] fork.
+	
+	semaphore wait.
+	otherSemaphore wait.
+	
+	! !
+
+
+!Paralelizer methodsFor: 'evaluating' stamp: 'JL 5/22/2018 18:20:38'!
+lines
+
+	^lines! !
+
+!Paralelizer methodsFor: 'evaluating' stamp: 'JL 5/22/2018 18:20:44'!
+value
+
+	^value! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Paralelizer class' category: #'PortfolioTimeConsuming-Ejercicio'!
+Paralelizer class
+	instanceVariableNames: ''!
+
+!Paralelizer class methodsFor: 'as yet unclassified' stamp: 'JL 5/22/2018 18:13:49'!
+paralelizeExecutionOf: aBlock andOf: anotherBlock
+
+	^self new paralelizeExecutionOf: aBlock andOf: anotherBlock.! !
 
 
 !classDefinition: #ReversePortfolioTreePrinter category: #'PortfolioTimeConsuming-Ejercicio'!
