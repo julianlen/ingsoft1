@@ -609,16 +609,16 @@ initializeFor: aReceptiveAccount
 	account := aReceptiveAccount ! !
 
 
-!AccountSummaryWithAllInvestmentInformation methodsFor: 'evaluating' stamp: 'JL 5/22/2018 18:24:47'!
+!AccountSummaryWithAllInvestmentInformation methodsFor: 'evaluating' stamp: 'NL 5/22/2018 19:50:28'!
 lines
 	|paralelizer lines |
 	
 	paralelizer := Paralelizer 
 			paralelizeExecutionOf: [(AccountSummaryWithInvestmentEarnings for: account) lines] 
 			andOf: [(InvestmentNetVisitor for: account) value].
-	lines := paralelizer lines.
+	lines := paralelizer resultOfFirstBlock.
 	
-	lines add: 'Inversiones por ' , (paralelizer value) printString.
+	lines add: 'Inversiones por ' , (paralelizer resultOfSecondBlock) printString.
 	^ lines.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
@@ -646,16 +646,16 @@ initializeFor: aReceptiveAccount
 	account := aReceptiveAccount ! !
 
 
-!AccountSummaryWithInvestmentEarnings methodsFor: 'evaluating' stamp: 'JL 5/22/2018 18:25:24'!
+!AccountSummaryWithInvestmentEarnings methodsFor: 'evaluating' stamp: 'NL 5/22/2018 19:49:16'!
 lines
 	| paralelizer lines |
 
 	paralelizer := Paralelizer
 		 	paralelizeExecutionOf: [(AccountSummary for: account) lines] 
 			andOf: [(InvestmentEarningVisitor for: account) value].
-	lines := paralelizer lines.
+	lines := paralelizer resultOfFirstBlock.
 	
-	lines add: 'Ganancias por ' , (paralelizer value) printString.
+	lines add: 'Ganancias por ' , (paralelizer resultOfSecondBlock) printString.
 	^ lines.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
@@ -1513,38 +1513,35 @@ for: aReceptiveAccount
 
 !classDefinition: #Paralelizer category: #'PortfolioTimeConsuming-Ejercicio'!
 Object subclass: #Paralelizer
-	instanceVariableNames: 'lines value'
+	instanceVariableNames: 'resultOfFirstBlock resultOfSecondBlock'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'PortfolioTimeConsuming-Ejercicio'!
 
-!Paralelizer methodsFor: 'initialization' stamp: 'JL 5/22/2018 18:16:48'!
+!Paralelizer methodsFor: 'initialization' stamp: 'NL 5/22/2018 19:48:08'!
 paralelizeExecutionOf: aBlock andOf: anotherBlock
 
 
-	| otherSemaphore semaphore |
+	| semaphore |
 	semaphore _ Semaphore new.
-	otherSemaphore _ Semaphore new.
 	
-	[lines _ aBlock value. semaphore signal] fork.
+	[ resultOfFirstBlock _ aBlock value. semaphore signal] fork.
 	
-	[value _ anotherBlock value. otherSemaphore signal] fork.
+	resultOfSecondBlock _ anotherBlock value.
 	
 	semaphore wait.
-	otherSemaphore wait.
-	
 	! !
 
 
-!Paralelizer methodsFor: 'evaluating' stamp: 'JL 5/22/2018 18:20:38'!
-lines
+!Paralelizer methodsFor: 'evaluating' stamp: 'NL 5/22/2018 19:49:35'!
+resultOfFirstBlock
 
-	^lines! !
+	^resultOfFirstBlock! !
 
-!Paralelizer methodsFor: 'evaluating' stamp: 'JL 5/22/2018 18:20:44'!
-value
+!Paralelizer methodsFor: 'evaluating' stamp: 'NL 5/22/2018 19:49:54'!
+resultOfSecondBlock
 
-	^value! !
+	^resultOfSecondBlock! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
