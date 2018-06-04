@@ -665,24 +665,6 @@ O|X|X'
 		equals: view log second.! !
 
 
-!classDefinition: #Observer category: #TicTacToe!
-Object subclass: #Observer
-	instanceVariableNames: 'observable'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TicTacToe'!
-
-!Observer methodsFor: 'as yet unclassified' stamp: 'NL 6/3/2018 19:18:21'!
-initialize: anObservable
-
-	observable := anObservable! !
-
-!Observer methodsFor: 'as yet unclassified' stamp: 'NL 6/3/2018 19:16:33'!
-update
-
-	self subclassResponsibility! !
-
-
 !classDefinition: #ObserverProxy category: #TicTacToe!
 Object subclass: #ObserverProxy
 	instanceVariableNames: 'observers'
@@ -738,7 +720,6 @@ lastPlay
 !TicTacToe methodsFor: 'inspecting' stamp: 'JL 5/28/2018 21:03:49'!
 state
 	^state! !
-
 
 
 !TicTacToe methodsFor: 'initialization' stamp: 'JL 6/4/2018 15:50:08'!
