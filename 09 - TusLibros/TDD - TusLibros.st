@@ -1,16 +1,18 @@
 !classDefinition: #TusLibrosTest category: #'TDD - TusLibros'!
 TestCase subclass: #TusLibrosTest
-	instanceVariableNames: 'aCart anItem aCatalogue anInvalidItem'
+	instanceVariableNames: 'aCart anItem aCatalogue anInvalidItem anotherItem'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TDD - TusLibros'!
 
-!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 13:41:59'!
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 19:15:48'!
 setUp
 
 	anItem := 'ItemA'.
+	anotherItem := 'itemC'.
 	aCatalogue := OrderedCollection new.
 	aCatalogue add: anItem. 
+	aCatalogue add: anotherItem. 
 	aCart := Cart newWith: aCatalogue.
 	anInvalidItem := 'ItemB'.! !
 
@@ -171,16 +173,19 @@ test12CannotRemoveItemsThatItDoesntHave
 
 ! !
 
-!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 13:36:50'!
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 19:18:32'!
 test13CartCanListTheItemItHas
 
-	|aCart anItem aCatalogue |
+	|aListOfItems |
 	
-	anItem := 'ItemA'.
-	aCatalogue := OrderedCollection new.
-	aCatalogue add: anItem.
-	aCart := Cart newWith: aCatalogue.
-	aCart addItem: anItem quantity: 1.
+	aListOfItems := OrderedCollection new.
+	aListOfItems add: anItem.
+	aListOfItems add: anotherItem.
+	aCart addItem: anotherItem.
+	aCart addItem: anItem.
+	
+	self assert: (aCart listCart includesAllOf: aListOfItems).
+	
 	
 	
 	
@@ -214,25 +219,27 @@ assertItemIsIncludedInCart: anItem
 isEmpty
 	^items isEmpty! !
 
+!Cart methodsFor: 'inspecting' stamp: 'JL 6/6/2018 19:14:06'!
+listCart
+	^items asOrderedCollection! !
+
 !Cart methodsFor: 'inspecting' stamp: 'JL 6/5/2018 21:26:10'!
 removeTheItem: anItem
 
 	self removeTheItem: anItem quantity: 1.
 	! !
 
-!Cart methodsFor: 'inspecting' stamp: 'JL 6/6/2018 13:50:45'!
+!Cart methodsFor: 'inspecting' stamp: 'JL 6/6/2018 19:05:56'!
 removeTheItem: anItem quantity: aQuantity 
 	
-	| aQuantityOfItem |
+	| aQuantityOfItem aQuantityIndex|
 	
 	self assertItemIsIncludedInCart: anItem.
-	aQuantityOfItem := (items at: anItem).
 	self assertAQuantityIsValid: aQuantity.
+		aQuantityOfItem := items occurrencesOf: anItem.
 	self assertItHasTheQuantity: aQuantity withRealQuantity: aQuantityOfItem.
-	aQuantityOfItem := aQuantityOfItem  - aQuantity.
-	items at: anItem put: aQuantityOfItem.
-	(aQuantityOfItem = 0) ifTrue: [items removeKey: anItem]
-	! !
+	aQuantityIndex := aQuantity .
+	[aQuantityIndex > 0] whileTrue: [items remove: anItem. aQuantityIndex := aQuantityIndex - 1]! !
 
 
 !Cart methodsFor: 'accesing' stamp: 'JL 6/5/2018 21:07:29'!
@@ -240,14 +247,13 @@ addItem: anItem
 
 	self addItem: anItem quantity: 1.! !
 
-!Cart methodsFor: 'accesing' stamp: 'JL 6/6/2018 13:54:05'!
+!Cart methodsFor: 'accesing' stamp: 'JL 6/6/2018 18:52:52'!
 addItem: anItem quantity: aQuantity
 
 	self assertAQuantityIsValid: aQuantity.
-	self assertItemIsIncludedInCatalogue: anItem. 
-	
-	items at: anItem ifPresent: [:aQuantityOfItem | items at: anItem put: (aQuantity + aQuantityOfItem)]
-						ifAbsent: [items at: anItem put: aQuantity] ! !
+	self assertItemIsIncludedInCatalogue: anItem.	 
+	items add: anItem withOccurrences: aQuantity.
+! !
 
 !Cart methodsFor: 'accesing' stamp: 'JL 6/6/2018 13:53:57'!
 assertItemIsIncludedInCatalogue: anItem
@@ -255,26 +261,25 @@ assertItemIsIncludedInCatalogue: anItem
 
 	(catalogue includes: anItem) ifFalse: [self error: self class invalidItemMessageDescription ].! !
 
-!Cart methodsFor: 'accesing' stamp: 'JL 6/6/2018 13:30:43'!
+!Cart methodsFor: 'accesing' stamp: 'JL 6/6/2018 18:53:05'!
 itemsIncludes: anItem
 
-	^(items keys) includes: anItem! !
+	^items includes: anItem! !
 
-!Cart methodsFor: 'accesing' stamp: 'JL 6/5/2018 20:45:56'!
+!Cart methodsFor: 'accesing' stamp: 'JL 6/6/2018 18:53:13'!
 itemsQuantity
-	^items values sum! !
+	^items size! !
 
-!Cart methodsFor: 'accesing' stamp: 'JL 6/5/2018 20:47:39'!
+!Cart methodsFor: 'accesing' stamp: 'JL 6/6/2018 18:53:53'!
 quantityOfTheItem: anItem 
 	
-	items at: anItem ifPresent: [:aQuantity | ^aQuantity] .
-	^0! !
+	^items occurrencesOf: anItem.! !
 
 
-!Cart methodsFor: 'initialization' stamp: 'JL 6/5/2018 20:54:40'!
+!Cart methodsFor: 'initialization' stamp: 'JL 6/6/2018 18:51:01'!
 initializeWith: aCatalogue 
 	catalogue := aCatalogue.
-	items := Dictionary new.! !
+	items := Bag new.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
