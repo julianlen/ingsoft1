@@ -1,0 +1,16 @@
+Cuando voy al cajero... si voy con un carrito vacio deberia explotar
+Voy al cajero con un item y me tengo que alsegurar que la cajera me cobro lo que me tenia que cobrar.
+El checkout me da un total
+El precio de las cosas es contextual, depende del tiemop y del espacio.
+lista de precios: cuando cambia algun valor del producto, se crea una nueva lista.
+si la tarjeta esta vencida no se puede checkoutear
+modelar la tarjeta de credito
+cajero pueda responder checkout.
+cuando el cajero hable con el mercant processor, el cajero se envia a sí mismo un mensaje que sea debitTotalAmount: from: creditCard y ese mensaje no haga nada 
+
+test que no se puede vender que la tarjeta no este vencida, ese test tiene qu correr en cualq dia de cualq año correctamente. (today)
+
+A una tarjeta de credito le puedo preguntar cuando vence
+
+
+password de la soluc de la catedra: carritoLoco
