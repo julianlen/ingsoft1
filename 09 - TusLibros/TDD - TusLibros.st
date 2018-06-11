@@ -1,188 +1,298 @@
-Object subclass: #Cart
-	instanceVariableNames: 'catalog items'
+!classDefinition: #TusLibrosTest category: #'TDD - TusLibros'!
+TestCase subclass: #TusLibrosTest
+	instanceVariableNames: 'aCart anItem anInvalidItem anotherItem aCatalog'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'TusLibros'!
+	category: 'TDD - TusLibros'!
 
-!Cart methodsFor: 'error messages' stamp: 'HernanWilkinson 6/17/2013 17:45'!
-invalidQuantityErrorMessage
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 19:41:27'!
+setUp
+
+	anItem := 'ItemA'.
+	anotherItem := 'itemC'.
+	aCatalog := OrderedCollection new.
+	aCatalog add: anItem. 
+	aCatalog add: anotherItem. 
+	aCart := Cart newWith: aCatalog.
+	anInvalidItem := 'ItemB'.! !
+
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 13:37:59'!
+test01CreateACartAndItIsEmpty
 	
-	^'Invalid number of items'! !
+	self assert: aCart isEmpty
 
-!Cart methodsFor: 'error messages' stamp: 'HernanWilkinson 6/17/2013 17:45'!
-invalidItemErrorMessage
+	! !
+
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 19:43:20'!
+test02ACartCanAddAnItem
 	
-	^'Item is not in catalog'! !
+	aCart addItem: anItem withCatalog: aCatalog.
+	self deny: aCart isEmpty
+
+	! !
+
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 19:43:28'!
+test03AddSomeItemAndCartKnowsQuantityOfTotalItems
+
+	aCart addItem: anItem quantity: 2 withCatalog: aCatalog.
+	self assert: aCart itemsQuantity = 2
+	
 
 
-!Cart methodsFor: 'assertions' stamp: 'HernanWilkinson 6/17/2013 17:51'!
-assertIsValidItem: anItem
+	! !
 
-	(catalog includes: anItem) ifFalse: [ self error: self invalidItemErrorMessage ]! !
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 19:43:39'!
+test04AddAnItemAndTheCartKnowsQuantityOfThatItem
 
-!Cart methodsFor: 'assertions' stamp: 'HernanWilkinson 6/17/2013 17:51'!
-assertIsValidQuantity: aQuantity
-
-	aQuantity strictlyPositive ifFalse: [ self error: self invalidQuantityErrorMessage ]! !
-
-
-!Cart methodsFor: 'initialization' stamp: 'HernanWilkinson 6/17/2013 17:48'!
-initializeAcceptingItemsOf: aCatalog
-
-	catalog := aCatalog.
-	items := OrderedCollection new.! !
+	aCart addItem: anItem quantity: 2 withCatalog: aCatalog.
+	self assert: (aCart quantityOfTheItem: anItem) = 2
+	
 
 
-!Cart methodsFor: 'queries' stamp: 'HernanWilkinson 6/17/2013 17:45'!
-occurrencesOf: anItem
+	! !
 
-	^items occurrencesOf: anItem  ! !
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 19:46:20'!
+test05AddANegativeQuantityOfItemIsIncorrect
+
+	self 
+		should: [ aCart addItem: anItem quantity: -1 withCatalog: aCatalog.] 
+		raise: Error 
+		withExceptionDo: [ :invalidQuantity |
+			self assert: Cart invalidQuantityMessageDescription = invalidQuantity messageText .
+			self assert: aCart isEmpty.	
+			]
+	
 
 
-!Cart methodsFor: 'testing' stamp: 'HernanWilkinson 6/17/2013 17:44'!
-includes: anItem
+	! !
 
-	^items includes: anItem ! !
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 19:43:52'!
+test05BAddZeroQuantityOfItemIsIncorrect
 
-!Cart methodsFor: 'testing' stamp: 'HernanWilkinson 6/17/2013 17:44'!
+	self 
+		should: [ aCart addItem: anItem quantity: 0 withCatalog: aCatalog.] 
+		raise: Error 
+		withExceptionDo: [ :invalidQuantity |
+			self assert: Cart invalidQuantityMessageDescription = invalidQuantity messageText .
+			self assert: aCart isEmpty.	
+			]
+	
+
+
+	! !
+
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 19:44:01'!
+test06CannotAddAnItemAbsentInCatalog
+	self
+		should: [
+			aCart
+				addItem: anInvalidItem
+				quantity: 1
+				withCatalog: aCatalog ]
+		raise: Error
+		withExceptionDo: [ :invalidItem |
+			self assert: Cart invalidItemMessageDescription = invalidItem messageText.
+			self assert: aCart isEmpty ].! !
+
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 19:44:11'!
+test07RemoveTheOnlyOneItemEmptiesTheCart
+
+	aCart addItem: anItem withCatalog: aCatalog.
+	aCart removeTheItem: anItem.
+	
+	self assert: aCart isEmpty.! !
+
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 19:44:19'!
+test08AddTwoItemsAndRemoveOneLetOneItem
+
+	
+	aCart addItem: anItem quantity: 2 withCatalog: aCatalog.
+	aCart removeTheItem: anItem.
+	
+	self assert: (aCart quantityOfTheItem: anItem) equals: 1.! !
+
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 19:44:30'!
+test09CanRemoveMoreThanOneItem
+
+	
+	aCart addItem: anItem quantity: 3 withCatalog: aCatalog.
+	aCart removeTheItem: anItem quantity: 2.
+	
+	self assert: (aCart quantityOfTheItem: anItem) equals: 1.! !
+
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 19:44:48'!
+test10CannotRemoveMoreItemsThatItHas
+
+
+	aCart addItem: anItem quantity: 1 withCatalog: aCatalog.
+		
+	self 
+		should: [ aCart removeTheItem: anItem quantity: 2.] 
+		raise: Error 
+		withExceptionDo: [ :invalidItem |
+			self assert: Cart invalidQuantityMessageDescription = invalidItem messageText .
+			self assert: (aCart quantityOfTheItem: anItem) equals: 1.
+			]
+	
+
+! !
+
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 19:44:56'!
+test11CannotRemoveNegativeQuantityOfItems
+
+	
+	aCart addItem: anItem quantity: 1 withCatalog: aCatalog.
+		
+	self 
+		should: [ aCart removeTheItem: anItem quantity: -1.] 
+		raise: Error 
+		withExceptionDo: [ :invalidItem |
+			self assert: Cart invalidQuantityMessageDescription = invalidItem messageText .
+			self assert: (aCart quantityOfTheItem: anItem) equals: 1.
+			]
+	
+
+! !
+
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 19:45:06'!
+test12CannotRemoveItemsThatItDoesntHave
+
+	aCart addItem: anItem quantity: 1 withCatalog: aCatalog.
+		
+	self 
+		should: [ aCart removeTheItem: anInvalidItem quantity: 1.] 
+		raise: Error 
+		withExceptionDo: [ :invalidItem |
+			self assert: Cart invalidItemMessageDescription = invalidItem messageText .
+			self assert: (aCart quantityOfTheItem: anItem) equals: 1.
+			self assert: (aCart quantityOfTheItem: anInvalidItem) equals: 0.
+			]
+	
+
+! !
+
+!TusLibrosTest methodsFor: 'as yet unclassified' stamp: 'JL 6/6/2018 19:45:20'!
+test13CartCanListTheItemItHas
+
+	|aListOfItems |
+	
+	aListOfItems := OrderedCollection new.
+	aListOfItems add: anItem.
+	aListOfItems add: anotherItem.
+	aCart addItem: anotherItem withCatalog: aCatalog.
+	aCart addItem: anItem withCatalog: aCatalog.
+	
+	self assert: (aCart listCart includesAllOf: aListOfItems).
+	
+	
+	
+	
+
+! !
+
+
+!classDefinition: #Cart category: #'TDD - TusLibros'!
+Object subclass: #Cart
+	instanceVariableNames: 'items catalogue'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TDD - TusLibros'!
+
+!Cart methodsFor: 'inspecting' stamp: 'JL 6/6/2018 13:55:12'!
+assertAQuantityIsValid: aQuantity
+
+	aQuantity <= 0 ifTrue: [self error: self class invalidQuantityMessageDescription ].! !
+
+!Cart methodsFor: 'inspecting' stamp: 'JL 6/6/2018 13:52:59'!
+assertItHasTheQuantity: aQuantity withRealQuantity: aQuantityOfItem.
+	
+	aQuantity > aQuantityOfItem ifTrue: [self error: self class invalidQuantityMessageDescription ]! !
+
+!Cart methodsFor: 'inspecting' stamp: 'JL 6/6/2018 13:46:29'!
+assertItemIsIncludedInCart: anItem
+
+		(self itemsIncludes: anItem) ifFalse: [self error: self class invalidItemMessageDescription ].! !
+
+!Cart methodsFor: 'inspecting' stamp: 'JL 6/5/2018 21:29:02'!
 isEmpty
+	^items isEmpty! !
+
+!Cart methodsFor: 'inspecting' stamp: 'JL 6/6/2018 19:14:06'!
+listCart
+	^items asOrderedCollection! !
+
+!Cart methodsFor: 'inspecting' stamp: 'JL 6/5/2018 21:26:10'!
+removeTheItem: anItem
+
+	self removeTheItem: anItem quantity: 1.
+	! !
+
+!Cart methodsFor: 'inspecting' stamp: 'JL 6/6/2018 19:05:56'!
+removeTheItem: anItem quantity: aQuantity 
 	
-	^items isEmpty ! !
+	| aQuantityOfItem aQuantityIndex|
+	
+	self assertItemIsIncludedInCart: anItem.
+	self assertAQuantityIsValid: aQuantity.
+		aQuantityOfItem := items occurrencesOf: anItem.
+	self assertItHasTheQuantity: aQuantity withRealQuantity: aQuantityOfItem.
+	aQuantityIndex := aQuantity .
+	[aQuantityIndex > 0] whileTrue: [items remove: anItem. aQuantityIndex := aQuantityIndex - 1]! !
 
 
-!Cart methodsFor: 'adding' stamp: 'HernanWilkinson 6/17/2013 17:51'!
-add: aQuantity of: anItem
+!Cart methodsFor: 'accesing' stamp: 'JL 6/6/2018 19:46:53'!
+addItem: anItem quantity: aQuantity withCatalog: aCatalog
+	self assertAQuantityIsValid: aQuantity.
+	self assertItemIsIncludedInCatalog: anItem withCatalog: aCatalog.
+	items
+		add: anItem
+		withOccurrences: aQuantity.! !
 
-	self assertIsValidQuantity: aQuantity.
-	self assertIsValidItem: anItem.
+!Cart methodsFor: 'accesing' stamp: 'JL 6/6/2018 19:42:39'!
+addItem: anItem withCatalog: aCatalog
 
-	1 to: aQuantity do: [ :aNumber | items add: anItem ]! !
+	self addItem: anItem quantity: 1 withCatalog: aCatalog.! !
 
-!Cart methodsFor: 'adding' stamp: 'HernanWilkinson 6/17/2013 17:44'!
-add: anItem
+!Cart methodsFor: 'accesing' stamp: 'JL 6/6/2018 19:47:14'!
+assertItemIsIncludedInCatalog: anItem withCatalog: aCatalog
+	(aCatalog includes: anItem) ifFalse: [ self error: self class invalidItemMessageDescription ].! !
 
-	^ self add: 1 of: anItem ! !
+!Cart methodsFor: 'accesing' stamp: 'JL 6/6/2018 18:53:05'!
+itemsIncludes: anItem
+
+	^items includes: anItem! !
+
+!Cart methodsFor: 'accesing' stamp: 'JL 6/6/2018 18:53:13'!
+itemsQuantity
+	^items size! !
+
+!Cart methodsFor: 'accesing' stamp: 'JL 6/6/2018 18:53:53'!
+quantityOfTheItem: anItem 
+	
+	^items occurrencesOf: anItem.! !
+
+
+!Cart methodsFor: 'initialization' stamp: 'JL 6/6/2018 18:51:01'!
+initializeWith: aCatalogue 
+	catalogue := aCatalogue.
+	items := Bag new.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
+!classDefinition: 'Cart class' category: #'TDD - TusLibros'!
 Cart class
-	instanceVariableNames: ''!
+	instanceVariableNames: 'items'!
 
-!Cart class methodsFor: 'instance creation' stamp: 'HernanWilkinson 6/17/2013 17:48'!
-acceptingItemsOf: aCatalog
+!Cart class methodsFor: 'errorMessages' stamp: 'JL 6/6/2018 13:28:22'!
+invalidItemMessageDescription
+	^'Invalid item'! !
 
-	^self new initializeAcceptingItemsOf: aCatalog ! !
+!Cart class methodsFor: 'errorMessages' stamp: 'JL 6/5/2018 20:31:37'!
+invalidQuantityMessageDescription
 
-
-TestCase subclass: #CartTest
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
-
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 17:43'!
-test04CanNotAddNonPositiveNumberOfItems
-
-	| cart |
-	
-	cart := self createCart.
-	
-	self 
-		should: [cart add: 0 of: self itemSellByTheStore ]
-		raise: Error - MessageNotUnderstood
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = cart invalidQuantityErrorMessage.
-			self assert: cart isEmpty ]! !
-
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 17:45'!
-test02CanNotAddItemsThatDoNotBelongToStore
-
-	| cart |
-	
-	cart := self createCart.
-	
-	self 
-		should: [ cart add: self itemNotSellByTheStore ]
-		raise: Error - MessageNotUnderstood
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = cart invalidItemErrorMessage.
-			self assert: cart isEmpty ]! !
-
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 17:45'!
-test08CartRemembersTheNumberOfAddedItems
-
-	| cart |
-	
-	cart := self createCart.
-	
-	cart add: 2 of: self itemSellByTheStore.
-	self assert: (cart occurrencesOf: self itemSellByTheStore) = 2! !
-
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 17:08'!
-test01NewCartsAreCreatedEmpty
-
-	self assert: self createCart isEmpty! !
-
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 17:43'!
-test03AfterAddingAnItemTheCartIsNotEmptyAnymore
-
-	| cart |
-	
-	cart := self createCart.
-	
-	cart add: self itemSellByTheStore.
-	self deny: cart isEmpty ! !
-
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 17:43'!
-test07CartDoesNotHoldNotAddedItems
-
-	| cart |
-	
-	cart := self createCart.
-	
-	self deny: (cart includes: self itemSellByTheStore)! !
-
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 17:45'!
-test05CanNotAddMoreThanOneItemNotSellByTheStore
-
-	| cart |
-	
-	cart := self createCart.
-	
-	self 
-		should: [cart add: 2 of: self itemNotSellByTheStore  ]
-		raise: Error - MessageNotUnderstood
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = cart invalidItemErrorMessage.
-			self assert: cart isEmpty ]! !
-
-!CartTest methodsFor: 'tests' stamp: 'HernanWilkinson 6/17/2013 17:43'!
-test06CartRemembersAddedItems
-
-	| cart |
-	
-	cart := self createCart.
-	
-	cart add: self itemSellByTheStore.
-	self assert: (cart includes: self itemSellByTheStore)! !
+	^'Invalid quantity'! !
 
 
-!CartTest methodsFor: 'support' stamp: 'HernanWilkinson 6/17/2013 17:44'!
-itemNotSellByTheStore
-	
-	^'invalidBook'! !
-
-!CartTest methodsFor: 'support' stamp: 'HernanWilkinson 6/17/2013 17:48'!
-createCart
-	
-	^Cart acceptingItemsOf: self defaultCatalog! !
-
-!CartTest methodsFor: 'support' stamp: 'HernanWilkinson 6/17/2013 17:43'!
-defaultCatalog
-	
-	^ Array with: self itemSellByTheStore! !
-
-!CartTest methodsFor: 'support' stamp: 'HernanWilkinson 6/17/2013 17:43'!
-itemSellByTheStore
-	
-	^ 'validBook'! !
+!Cart class methodsFor: 'initialization' stamp: 'JL 6/5/2018 20:53:54'!
+newWith: aCatalogue 
+	^self new initializeWith: aCatalogue! !
