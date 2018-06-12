@@ -1,0 +1,41 @@
+EL test tiene que estar en control de todo, etnre otras cosas el paso del tiempo
+El tiempo tiene que ser absoluto.
+EL test deberia controlar que fecha es que dia es.
+
+Puedo hacer un test que modifique el today de date pero eso haria que no se pueda paralelizar el test.
+
+La fecha de vencimiento es una MONTHOFYEAR
+
+
+Ahora toca interfacear el modelo con el MP (Merchant Processor)
+Opcion 1:
+
+Hago que el cajero conozca al MP de tal forma q cuado hace checkout le envia al MP debit: blabla y haga el request HTTP
+con el sistema externo del MP. Pero si el MP no responde quilombo.
+
+Opcion 2_
+Hay que hacerle creer que el cashier esta hablando con el MP cuando en realidad esta hablando con otro que el test sí puede controlar. Para esto...
+
+Una interfaz es un traductor/adapter. Tiene dos caras [|]
+
+Una cara interna y una cara externa
+
+Cara interna: obj mensaje, cajero.
+Cara externa: Rest, RPC.
+
+Lo que hace una interfaz traduce el idioma interno al idioma externo.
+Cada cara podria estar reificada en un objeto.
+Y cada una de ellas se encarga lo que le corresponde a cada cara.
+Cara externa: hace el request http.
+De punta de vista del dsñ siempre conviene que lo que yo pueda controlar sea mas grande. La cara externa no puedo controlar.
+Este objeto puede ser el que el test pueda controlar. Por ejemplo si te pasan una tarjeta de credito sin credito, habla con un objeto que simula la cara interna.
+
+Esto nos beneficia en velocidad.
+
+Si el test que escribo es que no hay credito en la tarjeta.. el test mismo dice que no hay credito en la tarjeta Despues intenta hacer el checkout, y la cara interna le va a decir que no tiene credito. Por ultimo es assertar que sucedio lo que tenia que suceder.
+
+Vamos a testear al cajero:
+tarjeta robada
+tarjeta no tiene credito
+tarjeta tiene credito
+y.. agregar una assercion dentro del test q no puede vender con la tarjeta vencida, que el cajero no haya hablado con el MP.
